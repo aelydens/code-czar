@@ -1,60 +1,62 @@
 var express = require('express.io');
 var http = require('http');
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
-app.http().io
+app.http().io()
 
-// view engine setup
+// all
+app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
-
+app.use(express.favicon());
+app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
-});
-
-// error handlers
-
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      message: err.message,
-      error: err
-    });
-  });
+// dev
+if ('development' == app.get('env')) {
+  app.use(express.errorHandler());
 }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
+app.io.route('ready', function (req) {
+  req.io.join(req.data.room);
+  req.io.room(req.data.room).broadcast('announce', {
+    message: req.data.username + ' just joined the room. ',
+    username: req.data.username
   });
 });
 
-module.exports = app;
+app.io.route('sendMessage', function (req) {
+  req.io.join(req.data.room);
+  req.io.room(req.data.room).broadcast('newMessage', {
+    message: req.data.message,
+    username: req.data.username
+  })
+});
+
+app.get('/', function (req, res) {
+  res.render('welcome', { title: 'Code Czar' });
+});
+
+app.get('/index', function (req, res) {
+  res.render('index', { title: 'Code Czar' });
+});
+
+app.get('/questions', function(req, res, next) {
+  res.send('Hello!');
+});
+
+app.get('/questions/:id', function (req, res) {
+  res.render('question', { title : req.params.id, username : req.query.username });
+});
+
+app.get('/rooms/:id', function (req, res) {
+  res.render('room', { title : req.params.id, username : req.query.username });
+});
+
+app.listen(app.get('port'));
