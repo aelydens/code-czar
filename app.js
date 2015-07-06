@@ -1,6 +1,11 @@
+process.env.DATABASE_URL || require("./.env")
+
+
 var express = require('express.io');
 var http = require('http');
 var path = require('path');
+var bookshelf = require('./bookshelf');
+var Question = require('./models/question.js')
 
 var app = express();
 app.http().io()
@@ -48,7 +53,9 @@ app.get('/index', function (req, res) {
 });
 
 app.get('/questions', function(req, res, next) {
-  res.send('Hello!');
+  Question.collection().fetch().then(function(questions) {
+    res.render('questions/index', {questions: questions.toJSON()});
+  })
 });
 
 app.get('/questions/:id', function (req, res) {
@@ -57,6 +64,10 @@ app.get('/questions/:id', function (req, res) {
 
 app.get('/rooms/:id', function (req, res) {
   res.render('room', { title : req.params.id, username : req.query.username });
+});
+
+app.get('/battle', function (req, res) {
+  res.render('battle', { title : 'Code Czar'});
 });
 
 app.listen(app.get('port'));
