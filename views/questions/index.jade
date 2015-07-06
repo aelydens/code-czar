@@ -1,0 +1,13 @@
+extends ../layout
+block content
+  h1(class='page-header') ANSWER A QUESTION
+
+  table(class='table')
+    thead
+      th Question
+      th Link
+    tbody
+      each question in questions
+        tr
+          td= question.content
+          td= question.link
