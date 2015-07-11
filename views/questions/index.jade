@@ -1,13 +1,19 @@
 extends ../layout
 block content
-  h1(class='page-header') ANSWER A QUESTION
+  a(href="questions/new" class="pull-right btn btn-success") Add A Question
+  h1(class='page-header') Answer A Question
 
   table(class='table')
     thead
-      th Question
-      th Link
+      th Title
+      th Description
+      th Upvotes
+
     tbody
-      each question in questions
+      each exercise in exercises
         tr
-          td= question.content
-          td= question.link
+          td
+            a(href="/questions/#{exercise.id}") #{exercise.title}
+          if exercise.description
+            td= exercise.description.substring(0,100) + "..."
+          td= exercise.upvotes

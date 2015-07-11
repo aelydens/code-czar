@@ -1,0 +1,63 @@
+extends ../layout
+
+block title
+    h1 #{exercise.title}
+
+    p #{exercise.description}
+    p Source:
+      a(href='#{exercise.link}')
+
+block content
+
+  div(class='answers')
+    div(class="row")
+      div(class="editor-container")
+        div(class="col-md-6")
+          div#editor
+            | function foo() {
+            |   var x = "Add your answer here!";
+            |   return x;
+            | }
+        div(class="col-md-6")
+          div#result
+
+      button#run(type='' class='btn btn-success') Run code
+
+    button#answer(type='submit' class='btn btn-default') Add a solution
+
+  script(type='text/javascript').
+
+    $(document).ready(function() {
+      var editor = ace.edit("editor");
+      editor.getSession().setMode("ace/mode/javascript");
+      editor.setTheme("ace/theme/dawn");
+      editor.getSession().setTabSize(2);
+      editor.getSession().setUseWrapMode(true);
+      editor.$blockScrolling = Infinity
+
+      var sandboxedFrame = $("#sandboxed")
+
+      $("#run").on("click", function() {
+        var sandboxedFrame = $("#sandboxed")
+        evaluate(sandboxedFrame);
+      });
+
+      function evaluate(frame) {
+        var code = editor.getValue();
+        console.log("evaluating")
+        frame.get(0).contentWindow.postMessage(code, '*');
+      }
+
+      window.addEventListener('message', function (e) {
+        if ((e.origin === "null" && e.source === sandboxedFrame.contentWindow)
+          || (e.origin === (window.location.protocol + "//" + window.location.host))) {
+          console.log((e.origin === (window.location.protocol + "//" + window.location.host)))
+          console.log(e.data)
+          $("#result").text(e.data);
+        }
+      });
+
+      sharejs.open('hello', 'text', function (error, doc) {
+        doc.attach_ace(editor);
+      });
+    });

@@ -1,0 +1,33 @@
+extends ../layout
+
+block content
+  h1(class="page-header") Submit A Question
+
+  form(action='/questions' method='post' class='form-horizontal')
+    div(class='form-group')
+      label(class='col-md-2 control-label') Title
+      div(class='col-md-4')
+        input(type='text' name='exercise[title]' class='form-control')
+
+    div(class='form-group')
+      label(class='col-md-2 control-label') Description
+      div(class='col-md-6')
+        textarea(name='exercise[description]' class='form-control' rows='6')
+
+    div(class="form-group")
+      label(class="col-md-2 control-label") Tag
+      div(class="col-md-4")
+        select(name='exercise[tag_id]' class="form-control")
+          option(value="1") Class Warmup
+          option(value="2") Homework
+          option(value="2") Interview Prep
+          option(value="3") Challenge
+
+    div(class='form-group')
+      label(class='col-md-2 control-label') Link
+      div(class='col-md-4')
+        input(type='text' name='exercise[link]' class='form-control')
+
+    div(class='form-group')
+      div(class='col-md-offset-2 col-md-4')
+        input(type='submit' name='commit' value='Add exercise' class='btn btn-success')
