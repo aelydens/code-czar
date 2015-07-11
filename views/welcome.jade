@@ -4,5 +4,29 @@ block content
   header
     div(class="text")
       .form-group
-        div(class="heading") POSE A QUESTION
-        a(class='btn btn-xl' href='/questions') Ask A Question
+        div(class="heading") ENTER USERNAME TO BEGIN
+        a#popup(class='btn btn-xl' onclick='div_show()') Ask A Question
+
+      div#abc
+        div#popupForm
+          form(class='navbar-form navbar-left' role='search')
+            .form-group
+              input#usernameTextBox(type='text' class='form-control' placeholder='enter your username')
+              br
+              button#ask(type='button' action='' class='btn btn-default' style='margin-left:10px') Enter!
+
+  script(type='text/javascript').
+
+    $('#ask').click(function(evt){
+      var username = $('#usernameTextBox').val() || 'anonymous'
+      localStorage.setItem('username', username)
+      window.location = 'questions/'
+    });
+
+    function div_show() {
+      document.getElementById('abc').style.display = "block";
+    }
+
+    function div_hide(){
+      document.getElementById('abc').style.display = "none";
+    }
