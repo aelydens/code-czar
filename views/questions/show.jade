@@ -9,6 +9,16 @@ block title
 
 block content
 
+  div(class='col-md-12')
+    div#alerts
+
+  .well
+    p#conversation
+
+  .form-group
+    input#chatTextBox(type='text' class='form-control' placeholder='Send a message')
+    button#sendButton(type='submit' class='btn btn-default') Send!
+
   div(class='answers')
     div(class="row")
       div(class="editor-container")
@@ -22,10 +32,35 @@ block content
           div#result
 
       button#run(type='' class='btn btn-success') Run code
-
     button#answer(type='submit' class='btn btn-default') Add a solution
 
+  iframe(sandbox='allow-scripts'
+          id='sandboxed'
+          src='/frame' height='0' width='0')
+
   script(type='text/javascript').
+    var ex = '#{exercise.title}';
+    var userName = localStorage.getItem('username');
+
+    io = io.connect();
+    io.emit('ready', {title : ex, username: userName });
+
+    io.on('announce', function(data){
+      console.log('Someone joined')
+      $('#alerts').append('<div class="alert alert-success">' + data.message + '</div>');
+    });
+
+    io.on('newMessage', function(data){
+      $('#conversation').append('<p>'+ data.username + ': ' + data.message + '</p>');
+    });
+
+    $('#sendButton').click(function(evt){
+      var messageText = $('#chatTextBox').val();
+      var messagePayload = {message: messageText, title: ex, username: userName };
+      io.emit('sendMessage', messagePayload);
+      $('#chatTextBox').val('');
+      $('#conversation').append('<p>'+ messagePayload.username + ': '+ messagePayload.message+'</p>');
+    });
 
     $(document).ready(function() {
       var editor = ace.edit("editor");
@@ -35,26 +70,22 @@ block content
       editor.getSession().setUseWrapMode(true);
       editor.$blockScrolling = Infinity
 
-      var sandboxedFrame = $("#sandboxed")
-
-      $("#run").on("click", function() {
-        var sandboxedFrame = $("#sandboxed")
-        evaluate(sandboxedFrame);
-      });
-
-      function evaluate(frame) {
-        var code = editor.getValue();
-        console.log("evaluating")
-        frame.get(0).contentWindow.postMessage(code, '*');
-      }
-
       window.addEventListener('message', function (e) {
         if ((e.origin === "null" && e.source === sandboxedFrame.contentWindow)
           || (e.origin === (window.location.protocol + "//" + window.location.host))) {
-          console.log((e.origin === (window.location.protocol + "//" + window.location.host)))
-          console.log(e.data)
           $("#result").text(e.data);
         }
+      });
+
+      var sandboxedFrame = document.getElementById('sandboxed');
+
+      function evaluate(frame) {
+        var code = editor.getValue();
+        frame.contentWindow.postMessage(code, '*');
+      }
+
+      document.getElementById('run').addEventListener('click', function () {
+        evaluate(sandboxedFrame);
       });
 
       sharejs.open('hello', 'text', function (error, doc) {
