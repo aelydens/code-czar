@@ -1,6 +1,5 @@
 process.env.DATABASE_URL || require("./.env")
 
-
 var express = require('express.io');
 var http = require('http');
 var path = require('path');
@@ -29,13 +28,38 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// realtime routes
+app.io.route('ready', function (req) {
+  req.io.join(req.data.room);
+  req.io.room(req.data.room).broadcast('announce', {
+    message: req.data.username + ' just joined. ',
+    username: req.data.username
+  });
+});
 
+app.io.route('sendMessage', function (req) {
+  req.io.join(req.data.room);
+  req.io.room(req.data.room).broadcast('newMessage', {
+    message: req.data.message,
+    username: req.data.username
+  })
+});
+
+// regular routes
 app.get('/', function (req, res) {
   res.render('welcome', { title: 'Code Czar' });
 });
 
 app.get('/index', function (req, res) {
   res.render('index', { title: 'Code Czar' });
+});
+
+app.get('/questions/new', function(req, res, next) {
+  res.render('questions/new', { title: 'Code Czar' });
+});
+
+app.get('/frame', function(req, res, next) {
+  res.render('questions/frame', { title: 'Code Czar' });
 });
 
 app.get('/questions', function(req, res, next) {
@@ -45,10 +69,6 @@ app.get('/questions', function(req, res, next) {
     console.log(error);
     res.send('An error occurred');
   });
-});
-
-app.get('/questions/new', function(req, res, next) {
-  res.render('questions/new', { title: 'Code Czar' });
 });
 
 app.post('/questions', function(req, res, next) {
@@ -76,7 +96,7 @@ app.get('/questions/:id', function (req, res) {
   });
 });
 
-
+//shareJS
 var connect = require('connect'),
     sharejs = require('share').server;
 
