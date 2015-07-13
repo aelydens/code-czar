@@ -96,6 +96,10 @@ app.get('/questions/:id', function (req, res) {
   });
 });
 
+app.get('/workspace/(:id)', function(req, res) {
+  res.render('wildcard');
+});
+
 //shareJS
 var connect = require('connect'),
     sharejs = require('share').server;

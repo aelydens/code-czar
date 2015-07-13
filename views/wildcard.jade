@@ -1,0 +1,58 @@
+extends layout
+
+block content
+
+  div(class='col-md-12')
+    div#alerts
+
+  div(class='answers')
+    div(class="row")
+      div(class="editor-container")
+        div(class="col-md-6")
+          div#editor
+            | function foo() {
+            |   var x = "Add your answer here!";
+            |   return x;
+            | }
+        div(class="col-md-6")
+          div#result
+
+      button#run(type='' class='btn btn-success') Run code
+    button#answer(type='submit' class='btn btn-default') Add a solution
+
+  iframe(sandbox='allow-scripts'
+          id='sandboxed'
+          src='/frame' height='0' width='0')
+
+  script(type='text/javascript').
+    $(document).ready(function() {
+      var editor = ace.edit("editor");
+      editor.getSession().setMode("ace/mode/javascript");
+      editor.setTheme("ace/theme/dawn");
+      editor.getSession().setTabSize(2);
+      editor.getSession().setUseWrapMode(true);
+      editor.$blockScrolling = Infinity
+
+      window.addEventListener('message', function (e) {
+        if ((e.origin === "null" && e.source === sandboxedFrame.contentWindow)
+          || (e.origin === (window.location.protocol + "//" + window.location.host))) {
+          $("#result").text(e.data);
+        }
+      });
+
+      var sandboxedFrame = document.getElementById('sandboxed');
+
+      function evaluate(frame) {
+        var code = editor.getValue();
+        frame.contentWindow.postMessage(code, '*');
+      }
+
+      document.getElementById('run').addEventListener('click', function () {
+      console.log("working")
+        evaluate(sandboxedFrame);
+      });
+
+      sharejs.open('hello', 'text', function (error, doc) {
+        doc.attach_ace(editor);
+      });
+    });
