@@ -88,7 +88,8 @@ block content
         evaluate(sandboxedFrame);
       });
 
-      sharejs.open('hello', 'text', function (error, doc) {
+      sharejs.open('document.location.pathname', 'text', function (error, doc) {
+        console.log(document.location.pathname)
         doc.attach_ace(editor);
       });
     });

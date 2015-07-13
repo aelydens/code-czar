@@ -48,11 +48,10 @@ block content
       }
 
       document.getElementById('run').addEventListener('click', function () {
-      console.log("working")
         evaluate(sandboxedFrame);
       });
 
-      sharejs.open('hello', 'text', function (error, doc) {
+      sharejs.open('document.location.pathname', 'text', function (error, doc) {
         doc.attach_ace(editor);
       });
     });
