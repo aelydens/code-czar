@@ -24,15 +24,14 @@ block content
       div(class="editor-container")
         div(class="col-md-6")
           div#editor
-            | function foo() {
-            |   var x = "Add your answer here!";
-            |   return x;
-            | }
         div(class="col-md-6")
           div#result
 
-      button#run(type='' class='btn btn-success') Run code
-    button#answer(type='submit' class='btn btn-default') Add a solution
+    div(class="row")
+      div(class="col-md-10")
+        button#run(type='' class='btn btn-success') Run code
+        button#run(type='' class='btn btn-default pull-right') Export as anonymous Gist
+        button#run(type='' class='btn btn-default pull-right') Export as Gist
 
   iframe(sandbox='allow-scripts'
           id='sandboxed'
@@ -62,6 +61,17 @@ block content
       $('#conversation').append('<p>'+ messagePayload.username + ': '+ messagePayload.message+'</p>');
     });
 
+    var randomString = function() {
+      var chars, x;
+      var length = 5;
+      chars = "abcdefghijklmnopqrstuvwxyz";
+      var name = [];
+      for (x = 0; x < length; x++) {
+        name.push(chars[Math.floor(Math.random() * chars.length)]);
+      }
+      return name.join('');
+    };
+
     $(document).ready(function() {
       var editor = ace.edit("editor");
       editor.getSession().setMode("ace/mode/javascript");
@@ -88,8 +98,23 @@ block content
         evaluate(sandboxedFrame);
       });
 
-      sharejs.open('document.location.pathname', 'text', function (error, doc) {
-        console.log(document.location.pathname)
+      if (!document.location.hash) {
+        document.location.hash = '#' + randomString();
+      }
+      console.log(document.location.hash)
+      var docName = "x:" + document.location.hash.slice(1);
+
+      sharejs.open(docName, 'text', function(error, doc) {
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        if (doc.created) {
+          doc.insert(0, "// Insert your code here!\n\nfunction foo() {\n  return 'hi!'\n}\n\nfoo()");
+        }
+
         doc.attach_ace(editor);
+        editor.setReadOnly(false);
       });
     });
