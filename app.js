@@ -96,7 +96,7 @@ app.get('/questions/:id', function (req, res) {
   });
 });
 
-app.get('/workspace/(:id)', function(req, res) {
+app.get('/workspace', function(req, res) {
   res.render('wildcard');
 });
 

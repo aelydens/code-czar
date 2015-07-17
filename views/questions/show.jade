@@ -37,6 +37,7 @@ block content
           id='sandboxed'
           src='/frame' height='0' width='0')
 
+  script(type='text/javascript' src='../javascripts/editor.js')
   script(type='text/javascript').
     var ex = '#{exercise.title}';
     var userName = localStorage.getItem('username');
@@ -59,62 +60,4 @@ block content
       io.emit('sendMessage', messagePayload);
       $('#chatTextBox').val('');
       $('#conversation').append('<p>'+ messagePayload.username + ': '+ messagePayload.message+'</p>');
-    });
-
-    var randomString = function() {
-      var chars, x;
-      var length = 5;
-      chars = "abcdefghijklmnopqrstuvwxyz";
-      var name = [];
-      for (x = 0; x < length; x++) {
-        name.push(chars[Math.floor(Math.random() * chars.length)]);
-      }
-      return name.join('');
-    };
-
-    $(document).ready(function() {
-      var editor = ace.edit("editor");
-      editor.getSession().setMode("ace/mode/javascript");
-      editor.setTheme("ace/theme/dawn");
-      editor.getSession().setTabSize(2);
-      editor.getSession().setUseWrapMode(true);
-      editor.$blockScrolling = Infinity
-
-      window.addEventListener('message', function (e) {
-        if ((e.origin === "null" && e.source === sandboxedFrame.contentWindow)
-          || (e.origin === (window.location.protocol + "//" + window.location.host))) {
-          $("#result").text(e.data);
-        }
-      });
-
-      var sandboxedFrame = document.getElementById('sandboxed');
-
-      function evaluate(frame) {
-        var code = editor.getValue();
-        frame.contentWindow.postMessage(code, '*');
-      }
-
-      document.getElementById('run').addEventListener('click', function () {
-        evaluate(sandboxedFrame);
-      });
-
-      if (!document.location.hash) {
-        document.location.hash = '#' + randomString();
-      }
-      console.log(document.location.hash)
-      var docName = "x:" + document.location.hash.slice(1);
-
-      sharejs.open(docName, 'text', function(error, doc) {
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        if (doc.created) {
-          doc.insert(0, "// Insert your code here!\n\nfunction foo() {\n  return 'hi!'\n}\n\nfoo()");
-        }
-
-        doc.attach_ace(editor);
-        editor.setReadOnly(false);
-      });
     });
