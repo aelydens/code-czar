@@ -2,7 +2,7 @@ var randomString = function() {
   var length = 5;
   var chars = "abcdefghijklmnopqrstuvwxyz";
   var string = [];
-  for (x = 0; x < length; x++) {
+  for (i = 0; i < length; i++) {
     string.push(chars[Math.floor(Math.random() * chars.length)]);
   }
   return string.join('');
@@ -14,7 +14,7 @@ $(document).ready(function() {
   editor.setTheme("ace/theme/dawn");
   editor.getSession().setTabSize(2);
   editor.getSession().setUseWrapMode(true);
-  editor.$blockScrolling = Infinity
+  editor.$blockScrolling = Infinity;
 
   window.addEventListener('message', function (e) {
     if ((e.origin === "null" && e.source === sandboxedFrame.contentWindow)
